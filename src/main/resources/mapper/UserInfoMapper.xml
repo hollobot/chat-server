@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.UserInfoMapper">
+    <!-- resultMap 定义查询结果到 POJO 的映射 -->
+    <resultMap id="userResultMap" type="userInfo">
+        <!-- 映射数据库字段到 POJO 属性 -->
+        <id property="userId" column="user_id"/>
+        <result property="email" column="email"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="joinType" column="join_type"/>
+        <result property="sex" column="sex"/>
+        <result property="password" column="password"/>
+        <result property="personalSignature" column="personal_signature"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="areaName" column="area_name"/>
+        <result property="areaCode" column="area_code"/>
+        <result property="lastOffTime" column="last_off_time"/>
+    </resultMap>
+
+
+    <insert id="insertUserInfo">
+        insert into user_info
+        values (#{userId}, #{email}, #{nickName}, 1, 1, #{password},
+                null, 1, #{createTime}, #{lastLoginTime}, null, null, #{lastOffTime})
+    </insert>
+
+    <update id="updateUserInfo">
+        update user_info
+        set nick_name=#{nickName},
+            sex = #{sex},
+            join_type=#{joinType},
+            area_name=#{areaName},
+            personal_signature=#{personalSignature}
+        where user_id = #{userId}
+    </update>
+
+    <update id="updatePwd">
+        update user_info
+        set password=#{newPwd}
+        where user_id = #{userId}
+    </update>
+
+    <update id="changeUpdateTime">
+        update user_info
+        set last_login_time = now()
+        where user_id = #{userId}
+    </update>
+
+    <update id="changeLastOffTime">
+        update user_info
+        set last_off_time = #{lastOffTime}
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateStatus">
+        update user_info
+        set status = 1 - status
+        where user_id = #{userId}
+    </update>
+
+    <select id="selectUserByEmail" resultMap="userResultMap">
+        select *
+        from user_info
+        where email = #{email}
+    </select>
+
+    <select id="selectUserByUID" resultMap="userResultMap">
+        select user_id, nick_name, sex, personal_signature, area_name
+        from user_info
+        where user_id = #{userId}
+    </select>
+
+    <select id="selectGroupUsers" resultType="com.example.entity.vo.GroupUserInfoVo">
+        select ui.user_id   as id,
+               ui.nick_name as name,
+               ui.area_name as areaName,
+               ui.sex       as sex,
+               'USER'       as type,
+               ui.join_type as joinType,
+               ui.personal_signature as personalSignature,
+               CASE
+                   WHEN uc.contact_id IS NOT NULL THEN 1
+                   ELSE 0
+                   END      AS status -- 判断是否是好友
+        from user_info ui
+                 left join user_contact uc on
+            uc.user_id = #{userId} and uc.contact_id = ui.user_id and uc.status = 1
+        where ui.user_id in (select user_id
+                             from group_contact
+                             where group_id = #{groupId}
+                               and status = 1);
+    </select>
+
+    <select id="selectUserJoinTypeByID" resultType="java.lang.Integer">
+        select join_type
+        from user_info
+        where user_id = #{id}
+    </select>
+
+    <select id="selectNameById" resultType="java.lang.String">
+        select nick_name
+        from user_info
+        where user_id = #{userId}
+    </select>
+
+    <select id="selectUserInfoById" resultMap="userResultMap">
+        select *
+        from user_info
+        where user_id = #{userId}
+    </select>
+
+    <select id="conditionQuery" resultMap="userResultMap">
+        select *,
+               CASE
+                   WHEN last_off_time IS NULL OR last_login_time > FROM_UNIXTIME(last_off_time / 1000)
+                       THEN 1
+                   ELSE 0
+                   END as onlineStatus
+        from user_info
+        where user_id like CONCAT('%', #{userId}, '%')
+          and nick_name like CONCAT('%', #{nickName}, '%')
+    </select>
+
+
+</mapper>

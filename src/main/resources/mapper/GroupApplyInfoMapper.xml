@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.GroupApplyInfoMapper">
+
+    <resultMap id="groupApplyInfoResultMap" type="GroupApplyInfo">
+        <id property="applicantUserId" column="applicant_user_id"/>
+        <result property="groupId" column="group_id"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="groupName" column="group_name"/>
+        <result property="status" column="status"/>
+        <result property="applyTime" column="apply_time"/>
+        <result property="applyInfo" column="apply_info"/>
+        <result property="remark" column="remark"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="applicantSex" column="applicant_sex"/>
+        <result property="type" column="type"/>
+    </resultMap>
+
+    <insert id="insertApplyInfo">
+        insert into group_apply_info
+        values (#{applicantUserId}, #{groupId}, #{ownerId}, #{groupName}, #{status}, #{applyTime}, #{applyInfo},
+                #{remark},
+                #{nickName}, #{applicantSex}, #{type})
+    </insert>
+
+    <update id="saveApplyInfo">
+        update group_apply_info
+        set status        = #{status},
+            apply_time    = #{applyTime},
+            apply_info    = #{applyInfo},
+            remark        = #{remark},
+            nick_name     = #{nickName},
+            applicant_sex = #{applicantSex},
+            type          = #{type}
+        where applicant_user_id = #{applicantUserId}
+          and group_id = #{groupId}
+    </update>
+    <update id="updateApplyStatusById">
+        update group_apply_info
+        set status =#{status}
+        where applicant_user_id = #{applicantUserId}
+          and group_id = #{groupId}
+    </update>
+
+    <select id="selectApplyInfoById" resultMap="groupApplyInfoResultMap">
+        select *
+        from group_apply_info
+        where applicant_user_id = #{applicantUserId}
+          and group_id = #{groupId}
+    </select>
+
+    <select id="selectApplyInfoList" resultMap="groupApplyInfoResultMap">
+        SELECT *
+        FROM group_apply_info
+        WHERE applicant_user_id = #{applicantUserId}
+           or owner_id = #{applicantUserId}
+        ORDER BY apply_time DESC;
+    </select>
+
+    <select id="selectApplyCount" resultType="java.lang.Integer">
+        select count(*)
+        from group_apply_info uai
+        where owner_id = #{userId}
+          and status = #{status}
+          and UNIX_TIMESTAMP(uai.apply_time) * 1000 >= #{lastOffTime}
+    </select>
+
+
+</mapper>

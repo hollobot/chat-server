@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.UserContactMapper">
+    <resultMap id="UserContactResultMap" type="UserContact">
+        <id property="userId" column="user_id"/>
+        <id property="contactId" column="contact_id"/>
+        <result property="contactRemarks" column="contact_remarks"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+
+    </resultMap>
+
+    <insert id="insertUserContact" parameterType="userContact">
+        insert into user_contact
+        values (#{userId}, #{contactId}, #{contactRemarks}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <insert id="insertInitUserContact">
+        insert into user_contact
+        values (#{userId}, #{contactId}, #{contactRemarks}, 0, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="updateUserContact">
+        update user_contact
+        set contact_remarks = #{contactRemarks},
+            update_time     = #{updateTime}
+        where user_id = #{userId}
+          and contact_id = #{contactId}
+    </update>
+
+    <update id="updateUserContactStatus">
+        UPDATE user_contact AS uc1
+            JOIN user_contact AS uc2
+        ON uc2.user_id = uc1.contact_id
+            AND uc2.contact_id = uc1.user_id
+            SET
+                uc1.update_time = NOW(), uc2.update_time = NOW(), uc1.status = #{status}, -- 设置 uc1 的更新后的状态
+                uc2.status = CASE
+                WHEN #{status} = 1 THEN 1                                                 -- 好友
+                WHEN #{status} = 2 THEN 3                                                 -- 被好友删除
+                WHEN #{status} = 4 THEN 5                                                 -- 被好友拉黑
+                ELSE #{status} -- 默认设置为传入的 status
+        END
+        WHERE uc1.user_id =
+        #{userId}
+        AND
+        uc1
+        .
+        contact_id
+        =
+        #{contactId};
+    </update>
+
+    <update id="updateContactRemarks">
+        update user_contact
+        set contact_remarks = #{remark}
+        where contact_id = #{contactId};
+    </update>
+
+    <select id="selectUserUnionGroupById" resultType="com.example.entity.vo.UserUnionGroupVo">
+        SELECT "USER"                                                                          AS type,
+               ui.user_id                                                                      AS id,
+               ui.nick_name                                                                    AS name,
+               ui.area_name                                                                    AS areaName,          -- 地区
+               NULL                                                                            AS groupAnnouncement, -- 用户数据无群公告
+               ui.sex                                                                          AS sex,
+               ui.join_type                                                                    AS joinType,          -- 加入方式
+               NULL                                                                            AS ownerId,
+               IF(uc.status = 1 or uc.status = 4 or uc.status = 5, 1, IF(ua.status = 0, 2, 0)) AS status
+        FROM user_info ui
+                 LEFT JOIN
+             user_contact uc
+             ON (ui.user_id = uc.contact_id and uc.user_id = #{userId})-- 关联 user_contact 表
+
+                 LEFT JOIN
+             user_apply_info ua
+             ON (ui.user_id = ua.recipient_id and ua.applicant_user_id = #{userId})-- 关联 user_apply_info 表
+
+        WHERE ui.user_id = #{searchId}
+          and ui.status = 1
+        UNION
+        SELECT "GROUP"                                       AS type,
+               gi.group_id                                   AS id,
+               gi.group_name                                 AS name,
+               null                                          AS areaName, -- 地区
+               gi.group_announcement                         AS groupAnnouncement,
+               null                                          AS sex,
+               gi.join_type                                  AS joinType, -- 加入方式
+               gi.owner_id                                   AS ownerId,
+               IF(gc.status = 1, 1, IF(ga.status = 0, 2, 0)) AS status
+        FROM group_info gi
+                 LEFT JOIN
+             group_contact gc
+             ON (gc.group_id = gi.group_id and gc.user_id = #{userId}) -- 关联 user_contact 表
+                 LEFT JOIN
+             group_apply_info ga
+             ON (ga.group_id = gi.group_id and ga.applicant_user_id = #{userId})-- 关联 user_contact 表
+        WHERE gi.group_id = #{searchId}
+          and gi.status = 1
+    </select>
+
+    <select id="selectContactUsers" resultMap="UserContactResultMap">
+        select uc.*, ui.sex, ui.area_name as areaName,ui.join_type as joinType
+        from user_contact uc
+        left join user_info ui on uc.contact_id = ui.user_id
+        where uc.user_id = #{userId}
+        <choose>
+            <when test="status == null">
+                AND (uc.status = 1 OR uc.status = 3 OR uc.status = 5)
+            </when>
+            <otherwise>
+                AND uc.status = #{status}
+            </otherwise>
+        </choose>
+        order by uc.update_time desc
+    </select>
+
+
+    <select id="selectUserContactById" resultMap="UserContactResultMap">
+        select *
+        from user_contact
+        where user_id = #{userId}
+          and contact_id = #{contactId}
+    </select>
+
+    <select id="selectUserContactIds" resultType="java.lang.String">
+        select contact_id
+        from user_contact
+        where user_id = #{userId}
+          and status = 1
+    </select>
+
+
+</mapper>

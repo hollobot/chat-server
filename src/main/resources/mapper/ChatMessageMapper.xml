@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ChatMessageMapper">
+    <resultMap id="ChatMessageResultMap" type="ChatMessage">
+        <!-- session_id 映射到 sessionId -->
+        <result property="sessionId" column="session_id"/>
+        <!-- message_type 映射到 messageType -->
+        <result property="messageType" column="message_type"/>
+        <!-- message_content 映射到 messageContent -->
+        <result property="messageContent" column="message_content"/>
+        <!-- send_user_id 映射到 sendUserId -->
+        <result property="sendUserId" column="send_user_id"/>
+        <!-- send_user_nick_name 映射到 sendUserNickName -->
+        <result property="sendUserNickName" column="send_user_nick_name"/>
+        <!-- send_time 映射到 sendTime -->
+        <result property="sendTime" column="send_time"/>
+        <!-- contact_id 映射到 contactId -->
+        <result property="recipientId" column="recipient_id"/>
+        <!-- contact_type 映射到 contactType -->
+        <result property="recipientType" column="recipient_type"/>
+        <!-- file_size 映射到 fileSize -->
+        <result property="fileSize" column="file_size"/>
+        <!-- file_name 映射到 fileName -->
+        <result property="fileName" column="file_name"/>
+        <!-- file_type 映射到 fileType -->
+        <result property="fileType" column="file_type"/>
+        <!-- status 映射到 status -->
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <!--
+       在 MyBatis 的 <trim> 标签中，suffixOverrides="," 是一个非常有用的属性，
+       它的作用是 自动去除 SQL 语句末尾多余的逗号。让我详细解释它的作用和用法
+    -->
+    <insert id="insertChatMessage">
+        INSERT INTO chat_message
+        (uuid,
+         session_id,
+         message_type,
+         message_content,
+         send_user_id,
+         send_user_nick_name,
+         send_time,
+         recipient_id,
+         recipient_type,
+         file_size,
+         file_name,
+         file_type,
+         status)
+        VALUES (#{uuid},
+                #{sessionId},
+                #{messageType},
+                #{messageContent},
+                #{sendUserId},
+                #{sendUserNickName},
+                #{sendTime},
+                #{recipientId},
+                #{recipientType},
+                #{fileSize},
+                #{fileName},
+                #{fileType},
+                #{status})
+    </insert>
+
+    <insert id="batchInsertMessages">
+        INSERT INTO chat_message
+        (uuid,
+        session_id,
+        message_type,
+        message_content,
+        send_user_id,
+        send_user_nick_name,
+        send_time,
+        recipient_id,
+        recipient_type,
+        file_size,
+        file_name,
+        file_type,
+        status)
+        VALUES
+        <foreach collection="chatMessageList" item="msg" separator=",">
+            (
+            #{msg.uuid},
+            #{msg.sessionId},
+            #{msg.messageType},
+            #{msg.messageContent},
+            #{msg.sendUserId},
+            #{msg.sendUserNickName},
+            #{msg.sendTime},
+            #{msg.recipientId},
+            #{msg.recipientType},
+            #{msg.fileSize},
+            #{msg.fileName},
+            #{msg.fileType},
+            #{msg.status}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateStatus">
+        update chat_message
+        set status = #{newStatus}
+        where uuid = #{uuid}
+          and status = #{oldStatus}
+    </update>
+
+    <select id="selectChatMessageList" resultMap="ChatMessageResultMap">
+        select * from chat_message where recipient_id in
+        <foreach collection="recipientIds" item="recipientId" open="(" separator=","
+                 close=")">
+            #{recipientId}
+        </foreach>and send_time>=#{sendTime} order by send_time ASC
+    </select>
+
+    <select id="selectByUUID" resultMap="ChatMessageResultMap">
+        select *
+        from chat_message
+        where uuid = #{uuid}
+    </select>
+
+</mapper>

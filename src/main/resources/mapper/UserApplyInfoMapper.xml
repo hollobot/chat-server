@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.UserApplyInfoMapper">
+    <resultMap id="UserApplyInfoResultMap" type="UserApplyInfo">
+        <!-- 申请人 ID -->
+        <result property="applicantUserId" column="applicant_user_id"/>
+
+        <!-- 接收人 ID -->
+        <result property="recipientId" column="recipient_id"/>
+
+
+        <!-- 状态：0 表示申请中，1 表示申请成功，2 表示申请失败 -->
+        <result property="status" column="status"/>
+
+        <!-- 申请时间 -->
+        <result property="applyTime" column="apply_time"/>
+
+        <!-- 申请信息 -->
+        <result property="applyInfo" column="apply_info"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="applicantSex" column="applicant_sex"/>
+        <result property="recipientSex" column="recipient_sex"/>
+    </resultMap>
+    <insert id="insertApplyInfo">
+        insert into user_apply_info
+        values (#{applicantUserId}, #{recipientId}, #{status}, #{applyTime}, #{applyInfo}, #{remark},
+                #{nickName}, #{applicantSex}, #{recipientSex})
+    </insert>
+
+    <update id="saveApplyInfo">
+        update user_apply_info
+        set status        = #{status},
+            apply_time    = #{applyTime},
+            apply_info    = #{applyInfo},
+            remark        = #{remark},
+            nick_name     = #{nickName},
+            applicant_sex = #{applicantSex},
+            recipient_sex = #{recipientSex}
+        where applicant_user_id = #{applicantUserId}
+          and recipient_id = #{recipientId}
+    </update>
+    <update id="updateApplyStatusById">
+        update user_apply_info
+        set status =#{status}
+        where applicant_user_id = #{applicantUserId}
+          and recipient_id = #{recipientId}
+    </update>
+
+    <select id="selectApplyInfoById" resultMap="UserApplyInfoResultMap">
+        select *
+        from user_apply_info
+        where applicant_user_id = #{applicantUserId}
+          and recipient_id = #{recipientId}
+    </select>
+
+    <select id="selectApplyInfoList" resultType="com.example.entity.vo.UserApplyInfoVo">
+        SELECT CASE
+                   WHEN applicant_user_id = #{applicantUserId} THEN 1
+                   ELSE 0
+                   END           AS type,
+               applicant_user_id AS applicantUserId,
+               recipient_id      AS recipientId,
+               status,
+               apply_time        AS applyTime,
+               apply_info        AS applyInfo,
+               remark,
+               nick_name         AS nickName,
+               applicant_sex     AS applicantSex,
+               recipient_sex     AS recipientSex
+        FROM user_apply_info
+        WHERE applicant_user_id = #{applicantUserId}
+           OR recipient_id = #{applicantUserId}
+        ORDER BY applyTime DESC;
+    </select>
+
+    <select id="selectApplyCount" resultType="java.lang.Integer">
+        select count(*)
+        from user_apply_info uai
+        where recipient_id = #{userId}
+          and status = #{status}
+          and UNIX_TIMESTAMP(uai.apply_time) * 1000 >= #{lastOffTime}
+    </select>
+
+</mapper>

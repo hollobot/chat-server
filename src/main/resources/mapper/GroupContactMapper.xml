@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.GroupContactMapper">
+    <resultMap id="groupContactResultMap" type="GroupContact">
+        <id property="userId" column="user_id"/>
+        <id property="groupId" column="group_id"/>
+        <id property="ownerId" column="owner_id"/>
+        <result property="groupRemarks" column="group_remarks"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    <insert id="insertGroupContact">
+        insert into group_contact
+        values (#{userId}, #{groupId}, #{ownerId}, #{groupRemarks}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+    <insert id="insertInitGroupContact">
+        insert into group_contact
+        values (#{userId}, #{groupId}, #{ownerId}, #{groupRemarks}, 0, #{createTime}, #{updateTime})
+    </insert>
+
+    <insert id="batchInsertOrUpdate">
+        INSERT INTO group_contact
+        (user_id,
+        group_id,
+        owner_id,
+        group_remarks,
+        status,
+        create_time,
+        update_time)
+        VALUES
+        <foreach collection="userIds" item="userId" separator=",">
+            (
+            #{userId},
+            #{groupId},
+            #{ownerId},
+            #{groupName},     <!-- 对应 group_remarks -->
+            #{type},          <!-- 1: 在群, 0: 离群 -->
+            NOW(),            <!-- create_time -->
+            NOW()             <!-- update_time -->
+            )
+        </foreach>
+        <!-- 如果已存在 (user_id, group_id) 则更新状态、备注、更新时间 -->
+        ON DUPLICATE KEY UPDATE
+        status = VALUES(status),
+        group_remarks= VALUES(group_remarks),
+        update_time = VALUES(update_time)
+    </insert>
+
+
+    <update id="updateGroupContact">
+        update group_contact
+        set group_remarks=#{groupRemarks},
+            update_time  = #{updateTime}
+        where user_id = #{userId}
+          and group_id = #{groupId}
+    </update>
+
+    <update id="updateGroupContacts">
+        update group_contact
+        set group_remarks=#{groupRemarks},
+            update_time  = #{updateTime}
+        where group_id = #{groupId}
+    </update>
+
+    <update id="updateGroupContactStatus">
+        update group_contact
+        set status=#{status}
+        where user_id = #{userId}
+          and group_id = #{groupId}
+    </update>
+
+
+    <select id="selectGroupUserCount" resultType="java.lang.Integer">
+        select count(*)
+        from group_contact
+        where group_id = #{groupId}
+          and status = 1
+    </select>
+
+    <select id="selectContactGroups" resultMap="groupContactResultMap">
+        select *
+        from group_contact
+        where user_id = #{userId}
+        and status = 1
+        <choose>
+            <when test="ownerId != null">
+                AND owner_id = #{ownerId}
+            </when>
+            <otherwise>
+                AND owner_id != #{userId}
+            </otherwise>
+        </choose>
+
+        order by update_time desc
+    </select>
+
+    <select id="selectContactGroup" resultType="com.example.entity.pojo.GroupContact">
+        select *
+        from group_contact
+        where user_id = #{userId}
+          and group_id = #{groupId}
+    </select>
+
+    <select id="selectGroupContactIds" resultType="java.lang.String">
+        select group_id
+        from group_contact
+        where user_id = #{userId}
+          and status = 1
+    </select>
+</mapper>

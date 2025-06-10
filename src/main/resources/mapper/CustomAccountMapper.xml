@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.CustomAccountMapper">
+    <!-- resultMap 定义查询结果到 POJO 的映射 -->
+    <resultMap id="customAccountResultMap" type="CustomAccount">
+        <!-- 映射数据库字段到 POJO 属性 -->
+        <id property="customAccountId" column="custom_account_id"/>
+        <result property="email" column="email"/>
+        <result property="userId" column="user_id"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+
+
+
+    <update id="updateStatusByEmail">
+        update custom_account
+        set status=#{status}
+        where email = #{email}
+    </update>
+
+    <select id="selectCustomAccountByEmail" resultType="CustomAccount">
+        select *
+        from custom_account
+        where email = #{email}
+    </select>
+
+
+
+</mapper>

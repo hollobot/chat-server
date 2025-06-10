@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ChatSessionMapper">
+    <resultMap id="ChatSessionResultMap" type="ChatSession">
+        <!-- session_id 作为主键映射到 sessionId -->
+        <id property="sessionId" column="session_id"/>
+        <!-- last_message 映射到 lastMessage（可为空） -->
+        <result property="lastMessage" column="last_message"/>
+        <!-- last_receive_time 映射到 lastReceiveTime（可为空） -->
+        <result property="lastReceiveTime" column="last_receive_time"/>
+    </resultMap>
+
+    <insert id="insertOrUpdate">
+        insert into chat_session
+        values (#{sessionId}, #{lastMessage}, #{lastReceiveTime}) ON DUPLICATE KEY
+        UPDATE
+            last_message =
+        VALUES (last_message),
+            last_receive_time =
+        VALUES (last_receive_time)
+    </insert>
+
+    <update id="update">
+        update chat_session
+        set last_message      = #{lastMessage},
+            last_receive_time = #{lastReceiveTime}
+        where session_id = #{sessionId};
+    </update>
+
+
+</mapper>

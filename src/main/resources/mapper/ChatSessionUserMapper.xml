@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ChatSessionUserMapper">
+    <resultMap id="ChatSessionUserResultMap" type="ChatSessionUser">
+        <!-- user_id 作为主键映射到 userId -->
+        <id property="userId" column="user_id"/>
+        <!-- contact_id 作为主键映射到 contactId -->
+        <id property="contactId" column="contact_id"/>
+        <!-- session_id 映射到 sessionId -->
+        <result property="sessionId" column="session_id"/>
+        <!-- contact_name 映射到 contactName，可为空 -->
+        <result property="contactName" column="contact_name"/>
+        <result property="lastMessage" column="last_message"/>
+        <result property="lastReceiveTime" column="last_receive_time"/>
+    </resultMap>
+    <insert id="insertOrUpdate">
+        insert into chat_session_user
+        values (#{userId}, #{contactId}, #{sessionId}, #{contactName}) ON DUPLICATE KEY
+        UPDATE
+            contact_name =
+        VALUES (contact_name), session_id =
+        VALUES (session_id)
+    </insert>
+
+    <insert id="insertOrUpdateBatch">
+        insert into chat_session_user
+        values
+        <foreach collection="chatSessionUsers" item="item" separator=",">
+            (#{item.userId}, #{item.contactId}, #{item.sessionId}, #{item.contactName})
+        </foreach>
+        ON DUPLICATE KEY
+        UPDATE
+        contact_name =
+        VALUES (contact_name),
+        session_id =
+        VALUES (session_id)
+    </insert>
+
+    <update id="updateName">
+        update chat_session_user
+        set contact_name=#{contactName}
+        where contact_id = #{contactId}
+    </update>
+
+    <delete id="deleteBatch" parameterType="map">
+        DELETE FROM chat_session_user
+        WHERE contact_id = #{contactId}
+        AND user_id IN
+        <foreach collection="userIds" item="uid" open="(" separator="," close=")">
+            #{uid}
+        </foreach>
+    </delete>
+
+    <!--多表查询-->
+    <select id="selectAll" resultMap="ChatSessionUserResultMap">
+        SELECT su.*,
+               s.last_message,
+               s.last_receive_time,
+               IF(
+                   LEFT(su.contact_id, 1) = 'G',
+                       (SELECT COUNT(*) FROM group_contact gc WHERE gc.group_id = su.contact_id),
+                       0
+               ) AS memberCount
+        FROM chat_session_user su
+                 INNER JOIN chat_session s ON su.session_id = s.session_id
+        WHERE su.user_id = #{userId}
+    </select>
+
+
+</mapper>

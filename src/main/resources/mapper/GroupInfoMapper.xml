@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.GroupInfoMapper">
+    <resultMap id="GroupInfoResultMap" type="GroupInfo">
+        <!-- 群ID -->
+        <id property="groupId" column="group_id"/>
+
+        <!-- 群名 -->
+        <result property="groupName" column="group_name"/>
+
+        <!-- 群主ID -->
+        <result property="ownerId" column="owner_id"/>
+
+        <!-- 群公告 -->
+        <result property="groupAnnouncement" column="group_announcement"/>
+
+        <!-- 加入类型：0表示直接加入，1表示管理员同意 -->
+        <result property="joinType" column="join_type"/>
+
+        <!-- 群状态：0表示解散状态，1表示正常状态 -->
+        <result property="status" column="status"/>
+
+        <!-- 群创建时间 -->
+        <result property="createTime" column="create_time"/>
+
+    </resultMap>
+
+    <insert id="insertGroupInfo" parameterType="groupInfo">
+        insert into group_info
+        values (#{groupId}, #{groupName}, #{ownerId}, #{groupAnnouncement}, #{joinType}, #{status}, #{createTime})
+    </insert>
+    <update id="updateGroupNumber">
+        update group_info
+        set group_number = #{number}
+        where group_id = #{groupId}
+    </update>
+    <update id="updateGroupStatus">
+        update group_info
+        set status = #{status}
+        where group_id = #{groupId}
+    </update>
+
+    <update id="updateInfo">
+        update group_info
+        set group_name        = #{groupName},
+            group_announcement=#{groupAnnouncement},
+            join_type=#{joinType}
+        where group_id = #{groupId}
+    </update>
+
+    <select id="selectCountByOwnerId" resultType="java.lang.Integer">
+        select count(*)
+        from group_info
+        where owner_id = #{userId}
+    </select>
+
+    <select id="selectGroupById" resultMap="GroupInfoResultMap">
+        select *
+        from group_info
+        where group_id = #{groupId}
+    </select>
+
+
+</mapper>
