@@ -1,9 +1,6 @@
 package com.example.websocket.netty;
 
-import com.example.entity.constants.Constants;
 import com.example.entity.dto.TokenUserInfoDto;
-import com.example.entity.enums.ExceptionCodeEnum;
-import com.example.handler.CustomException;
 import com.example.utils.RedisUtils;
 import com.example.websocket.ChannelContextUtils;
 import io.netty.channel.Channel;
