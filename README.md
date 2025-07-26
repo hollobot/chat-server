@@ -3,12 +3,15 @@
 <div align="center">
   <h3>🚀 基于 Spring Boot + Netty 的聊天服务后台</h3>
   <p>一个现代化的高性能聊天服务端，支持实时通信和分布式架构</p>
+
 ![License](https://img.shields.io/badge/license-Non--Commercial-red.svg)
 ![Java](https://img.shields.io/badge/Java-1.8-orange.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.6.13-brightgreen.svg)
 ![Netty](https://img.shields.io/badge/Netty-4.1.84-blue.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue.svg)
 ![Redis](https://img.shields.io/badge/Redis-6.0+-red.svg)
+
+</div>
 
 ## ✨ 项目特性
 
