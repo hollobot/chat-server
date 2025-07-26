@@ -12,9 +12,6 @@
         <result property="status" column="status"/>
     </resultMap>
 
-
-
-
     <update id="updateStatusByEmail">
         update custom_account
         set status=#{status}

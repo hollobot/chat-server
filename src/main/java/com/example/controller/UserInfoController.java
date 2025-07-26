@@ -44,7 +44,6 @@ public class UserInfoController {
         //1、获取验证码对象
         ArithmeticCaptcha arithmeticCaptcha = new ArithmeticCaptcha(100, 43);
         String code = arithmeticCaptcha.text();
-        code = "1";
         String codeBase64 = arithmeticCaptcha.toBase64();
         //2、将验证码存入redis
         String uuid = UUID.randomUUID().toString();

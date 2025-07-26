@@ -52,20 +52,20 @@ public class SysSettingDto implements Serializable {
     /**
      * 机器人昵称
      */
-    private String robotNickName = "刘骜机器人";
+    private String robotNickName = "robot";
 
     /**
      * 机器人欢迎语
      */
-    private String robotWelcome = "欢迎使用chat聊天系统";
+    private String robotWelcome = "欢迎使用SwiftChat";
 
     /**
      * 机器人回复
      */
-    private String robotDefaultMessage = "我是人机，无法聊天";
+    private String robotDefaultMessage = "我是机器人，无法聊天";
 
     private Integer robotSex = 1;
-    private String robotPersonalSignature = "欢迎使用chat聊天系统";
+    private String robotPersonalSignature = "欢迎使用SwiftChat";
     private String robotAreaName = "湖南省 衡阳";
 
 }

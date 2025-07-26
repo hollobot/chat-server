@@ -83,6 +83,7 @@ public class ChatController {
     @PostMapping("download")
     public void downloadFile(HttpServletRequest request, HttpServletResponse response, @NotBlank String fileId,
         @NotNull Boolean showCover) {
+        System.out.println("下载文件"+fileId);
         String token = request.getHeader("authorization");
         TokenUserInfoDto tokenInfo = redisUtils.getTokenInfo(token);
         chatMessageService.downloadFile(tokenInfo, response, fileId, showCover);

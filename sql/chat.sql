@@ -11,9 +11,9 @@
  Target Server Version : 80400
  File Encoding         : 65001
 
- Date: 11/06/2025 17:36:58
+ Date: 21/06/2025 19:02:26
 */
-
+use chat;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 

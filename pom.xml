@@ -126,11 +126,11 @@
         </dependency>
 
         <!-- Spring Boot DevTools (用于热部署) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope> <!-- 只在开发环境使用，不会打包到生产环境 -->
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-devtools</artifactId>-->
+<!--            <scope>runtime</scope> &lt;!&ndash; 只在开发环境使用，不会打包到生产环境 &ndash;&gt;-->
+<!--        </dependency>-->
 
 
     </dependencies>
@@ -165,7 +165,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.example.ChatServiceApplication</mainClass>
-                    <skip>true</skip>
+                    <skip>false</skip>
                 </configuration>
                 <executions>
                     <execution>
