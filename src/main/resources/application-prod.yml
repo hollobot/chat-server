@@ -20,6 +20,7 @@ spring:
       matching-strategy: ant_path_matcher
 
   datasource:
+    type: com.alibaba.druid.pool.DruidDataSource # 使用 Druid 连接池
     username: root
     password: 123456
     url: jdbc:mysql://127.0.0.1:3306/chat

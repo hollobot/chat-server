@@ -18,7 +18,7 @@ class ChatServiceApplicationTests {
     @Test
     void contextLoads() {
         String keyPrefix = Constants.REDS_KEY_GROUPS_CONTACT;
-        List<String> userIds = Arrays.asList("U51006520250", "U73005020250");
+        List<String> userIds = Arrays.asList("U51006520250", "U73005020250","U73005020250","U73005020250","U73005020250","U73005020250","U73005020250","U73005020250");
         redisUtils.batchAppendOrRemoverContacts(keyPrefix, userIds, "G99626920250", 0);
     }
 
