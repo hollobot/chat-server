@@ -175,6 +175,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         BeanUtils.copyProperties(userInfo, tokenUserInfoDto);
         tokenUserInfoDto.setToken(token);
         redisUtils.saveToken(tokenUserInfoDto);
+
         /*10、将userId 与 token 关联上存入redis*/
         redisUtils.saveUserIdAndToken(userInfo.getUserId(), token);
 
