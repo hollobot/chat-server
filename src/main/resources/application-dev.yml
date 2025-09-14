@@ -154,3 +154,11 @@ pagehelper:
   support-methods-arguments: true # 支持接口参数
   params: count=countSql        # 统计查询配置
   page-size-zero: true          # 允许 pageSize=0 返回全部结果
+
+
+
+logging:
+  level:
+    com.example.websocket: DEBUG  # 你的包名
+    # 或者设置根日志级别
+#    root: DEBUG

@@ -16,7 +16,8 @@ public enum MessageTypeEnum {
     LEAVE_GROUP(11, "%s退出了群聊", "退出群聊"),
     REMOVE_GROUP(12, "%s被管理员移出了群聊", "被管理员移出了群聊"),
     ADD_FRIEND_THIS(13, "", "添加好友打招呼消息"),
-    CONTACT_GROUP_APPLY(14, "", "群聊申请");
+    CONTACT_GROUP_APPLY(14, "", "群聊申请"),
+    VIDEO_CALL(15, "", "视频通话");
 
 
     private Integer type;

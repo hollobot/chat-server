@@ -41,7 +41,7 @@ public class AppVersionServerImpl implements AppVersionServer {
         queryWrapper.eq("is_deleted", 0).notIn("status", 0).orderByDesc("update_time").last("LIMIT 1");
         AppVersion appVersion = appVersionMapper.selectOne(queryWrapper);
         /*2、查询用户是否被支持该版本*/
-        if (currentVersion == appVersion.getVersionCode()) {
+        if (appVersion == null || currentVersion == appVersion.getVersionCode()) {
             return ResultVo.success(0);
         }
         if (appVersion.getStatus() == ReleaseStatusEnum.FULL_RELEASE.getCode()) {

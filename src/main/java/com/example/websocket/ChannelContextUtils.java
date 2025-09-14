@@ -54,6 +54,7 @@ public class ChannelContextUtils {
     private GroupApplyInfoMapper groupApplyInfoMapper;
 
     public void addContext(String userId, Channel channel) {
+
         /*1、channel注册userId属性*/
         setUserId(userId, channel);
         /*2、装入内存map里*/
@@ -179,7 +180,7 @@ public class ChannelContextUtils {
         if (type == 1) {
             channelGroup.add(channel);
 
-        } else if(type == 0){
+        } else if (type == 0) {
             channelGroup.remove(channel);
         }
 
@@ -236,5 +237,18 @@ public class ChannelContextUtils {
     public ChannelGroup removerGroupChannel(String groupId) {
         return GROUP_CHANNEL_MAP.remove(groupId);
     }
+
+    /**
+     * 向指定用户发送消息
+     */
+    public boolean sendMessageToUser(String userId, String message) {
+        Channel channel = getChannelByUserId(userId);
+        if (channel != null && channel.isActive()) {
+            channel.writeAndFlush(new TextWebSocketFrame(message));
+            return true;
+        }
+        return false;
+    }
+
 
 }
