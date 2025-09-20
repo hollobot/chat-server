@@ -35,9 +35,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+
+import static com.example.entity.constants.Constants.USER_AVATAR_FILE;
+import static com.example.entity.constants.Constants.USER_AVATAR_NAME_SUFFIX;
 
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
@@ -69,14 +74,27 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Value("${admin.email}")
     private String adminEmails;
 
+    @Value("${project.folder}")
+    private String path;
+
     @Resource
     private MessageHandler messageHandler;
     @Autowired
     private ChatSessionUserMapper chatSessionUserMapper;
 
+    private static final String[] PREFIXES = {"用户", "小伙伴", "访客", "玩家", "冒险者", "星际客"};
+
+    // 随机用户名
+    public static String generateRandomName() {
+        Random random = new Random();
+        String prefix = PREFIXES[random.nextInt(PREFIXES.length)];
+        int randNum = random.nextInt(10000); // 0~9999 随机数
+        return prefix + randNum;
+    }
+
     @Transactional(rollbackFor = RuntimeException.class)
     @Override
-    public ResultVo registerService(UserInfoDto userInfoDto) {
+    public ResultVo registerService(UserInfoDto userInfoDto) throws IOException {
 
         //1、判断验证码是否正确
         String code = redisUtils.get(Constants.REDS_KEY_CHECK_CODE + userInfoDto.getCodeKey());
@@ -109,7 +127,7 @@ public class UserInfoServiceImpl implements UserInfoService {
             userId = UserContactTypeEnum.USER.getPrefix() + customAccount.getUserId();
         }
         userInfo.setUserId(userId);
-        userInfo.setNickName("用户:" + userId);
+        userInfo.setNickName(generateRandomName());
 
         //4、插入数据
         Integer integer = userInfoMapper.insertUserInfo(userInfo);
@@ -118,13 +136,19 @@ public class UserInfoServiceImpl implements UserInfoService {
             customAccountMapper.updateStatusByEmail(0, customAccount.getEmail());
         }
 
+
         /*5、添加自己为联系人*/
         UserContact userContact = new UserContact(userInfo.getUserId(), userInfo.getUserId(), userInfo.getNickName(), 1,
             userInfo.getCreateTime(), userInfo.getCreateTime());
         userContactMapper.insertUserContact(userContact);
 
         /*6、添加机器人*/
-        userContactService.addContactRobot(userContact.getUserId(),userInfo.getNickName());
+        userContactService.addContactRobot(userContact.getUserId(), userInfo.getNickName());
+
+        /*7、保存默认头像到服务器*/
+        String targetPath = path + USER_AVATAR_FILE + userId + USER_AVATAR_NAME_SUFFIX;
+        imageUtils.copyStaticResourceToTarget("/static/avatar.png", targetPath);
+
         return ResultVo.success("注册成功");
     }
 

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotBlank;
+import java.io.IOException;
 import java.util.*;
 
 @Api(tags = "用户账号接口")  //名称可自定义
@@ -64,7 +65,7 @@ public class UserInfoController {
 
     @ApiOperation("注册")
     @PostMapping("register")
-    public ResultVo register(@Validated @RequestBody UserInfoDto userInfoDto) {
+    public ResultVo register(@Validated @RequestBody UserInfoDto userInfoDto) throws IOException {
         return userInfoService.registerService(userInfoDto);
     }
 

@@ -7,10 +7,11 @@ import com.example.entity.vo.ResultVo;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 public interface UserInfoService {
 
-    ResultVo registerService(UserInfoDto userInfoDto);
+    ResultVo registerService(UserInfoDto userInfoDto) throws IOException;
 
     ResultVo loginService(UserInfoDto userInfoDto);
 

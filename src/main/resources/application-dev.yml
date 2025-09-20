@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 7777
   servlet:
     context-path: /api
 
@@ -129,7 +129,7 @@ admin:
   email: 2380983020@qq.com
 
 project:
-  folder: D:\6_temp\chat
+  folder: D:\6_temp\chat\
 
 
 # netty 配置
