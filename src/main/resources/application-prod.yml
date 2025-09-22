@@ -1,5 +1,5 @@
 server:
-  port: 80
+  port: 7777
   servlet:
     context-path: /api
 
@@ -22,8 +22,8 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource # 使用 Druid 连接池
     username: root
-    password: 123456
-    url: jdbc:mysql://127.0.0.1:3306/chat
+    password: root
+    url: jdbc:mysql://106.53.223.225:3306/chat
     driver-class-name: com.mysql.cj.jdbc.Driver
     ########## 连接池 配置 ##########
     druid:
@@ -93,7 +93,7 @@ spring:
         deny:                                        # 拒绝访问的地址，deny优先于allow，如果在deny列表中，就算在allow列表中，也会被拒绝
 
   redis:
-    host: 127.0.0.1
+    host: 106.53.223.225
     port: 6379
     password: 123456
 
