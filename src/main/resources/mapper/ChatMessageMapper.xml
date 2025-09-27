@@ -111,7 +111,8 @@
         <foreach collection="recipientIds" item="recipientId" open="(" separator=","
                  close=")">
             #{recipientId}
-        </foreach>and send_time>=#{sendTime} order by send_time ASC
+        </foreach>
+        and send_time>=#{sendTime} order by send_time ASC
     </select>
 
     <select id="selectByUUID" resultMap="ChatMessageResultMap">

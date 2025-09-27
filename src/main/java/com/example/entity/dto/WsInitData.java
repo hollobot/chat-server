@@ -15,19 +15,16 @@ import java.util.List;
 @Validated
 public class WsInitData {
 
+    /** 消息会话 */
     private List<ChatSessionUser> chatSessionUserList;
 
+    /** 消息列表 */
     private List<ChatMessage> chatMessageList;
 
-    /**
-     * 群聊消息
-     */
+    /** 群聊未读申请数 */
     private Integer applyUserCount;
 
-    /**
-     * 联系人
-     */
+    /** 联系人未读申请数 */
     private Integer applyGroupCount;
-
 
 }

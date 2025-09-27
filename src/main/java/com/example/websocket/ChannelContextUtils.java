@@ -18,9 +18,7 @@ import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Resource;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,13 +65,13 @@ public class ChannelContextUtils {
                 addOrDelGroupChannel(groupId, channel, 1);
             }
         }
-        /**
-         *   4、给用户发送收到的消息（最多最近三天）
-         */
+
+        /** 4、给用户发送收到的消息（最近三天） */
         /*1、获取最后离线时间*/
         UserInfo userInfo = userInfoMapper.selectUserInfoById(userId);
         Long lastOffTime = userInfo.getLastOffTime();
 
+        // 如果用户3天内没有上线，默认只获取3天内的消息
         if (lastOffTime != null && System.currentTimeMillis() - Constants.MILLIS_3_DAYS > lastOffTime) {
             lastOffTime = System.currentTimeMillis() - Constants.MILLIS_3_DAYS;
         }
@@ -249,6 +247,5 @@ public class ChannelContextUtils {
         }
         return false;
     }
-
 
 }

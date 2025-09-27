@@ -1,4 +1,4 @@
 spring:
   profiles:
     # 选择运行环境
-    active: prod # 激活名为"dev"的配置环境
+    active: dev # 激活名为"dev"的配置环境

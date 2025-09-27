@@ -84,9 +84,9 @@ public class UserApplyInfoServiceImpl implements UserApplyInfoService {
     @Override
     public ResultVo updateUserApplyStatusById(String applicantUserId, String recipientId, Integer status) {
         /*1、修改用户申请数据状态*/
-        Integer integer = userApplyInfoMapper.updateApplyStatusById(applicantUserId, recipientId, status);
+        userApplyInfoMapper.updateApplyStatusById(applicantUserId, recipientId, status);
         /*2、修改用户联系人数据状态 会修改两条*/
-        Integer integer1 = userContactMapper.updateUserContactStatus(applicantUserId, recipientId, status == 1 ? 1 : 0);
+        userContactMapper.updateUserContactStatus(applicantUserId, recipientId, status == 1 ? 1 : 0);
         if (status==1) {
             /*3、添加成功初始化会话*/
             UserApplyInfo userApplyInfo = userApplyInfoMapper.selectApplyInfoById(applicantUserId, recipientId);

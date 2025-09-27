@@ -44,14 +44,7 @@
                 WHEN #{status} = 4 THEN 5                                                 -- 被好友拉黑
                 ELSE #{status} -- 默认设置为传入的 status
         END
-        WHERE uc1.user_id =
-        #{userId}
-        AND
-        uc1
-        .
-        contact_id
-        =
-        #{contactId};
+        WHERE uc1.user_id = #{userId} AND uc1.contact_id = #{contactId};
     </update>
 
     <update id="updateContactRemarks">

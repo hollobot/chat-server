@@ -242,7 +242,7 @@ public class UserContactServiceImpl implements UserContactService {
         applyChatSessionUser.setUserId(applyUserId);
         applyChatSessionUser.setContactId(receptionId);
         applyChatSessionUser.setSessionId(sessionId);
-        String applyName = userInfoMapper.selectNameById(receptionId);
+        String applyName = userInfoMapper.selectNameById(applyUserId);
         applyChatSessionUser.setContactName(applyName);
         chatSessionUsers.add(applyChatSessionUser);
         //接受人
@@ -250,7 +250,7 @@ public class UserContactServiceImpl implements UserContactService {
         receptionChatSessionUser.setUserId(receptionId);
         receptionChatSessionUser.setContactId(applyUserId);
         receptionChatSessionUser.setSessionId(sessionId);
-        String receptionName = userInfoMapper.selectNameById(applyUserId);
+        String receptionName = userInfoMapper.selectNameById(receptionId);
         receptionChatSessionUser.setContactName(receptionName);
         chatSessionUsers.add(receptionChatSessionUser);
         // 批量插入用户会话
@@ -278,7 +278,8 @@ public class UserContactServiceImpl implements UserContactService {
         //发送给申请人
         sendDto.setContactIdTemp(sendDto.getRecipientId());
         sendDto.setRecipientId(sendDto.getSendUserId());
-        sendDto.setStatus(1);
+        // 切换联系人名称
+        sendDto.setSendUserNickName(receptionName);
         messageHandler.sendMessage(sendDto);
     }
 

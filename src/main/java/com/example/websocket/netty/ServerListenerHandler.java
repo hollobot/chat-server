@@ -53,7 +53,7 @@ public class ServerListenerHandler extends SimpleChannelInboundHandler<TextWebSo
         Channel channel = ctx.channel();
         String userId = channelContextUtils.getUserId(channel);
         String msg = message.text();
-//        log.error("用户{}发的消息：{}", userId, msg);
+        log.error("用户{}发的消息：{}", userId, msg);
         /*刷新心跳*/
         redisUtils.saveHeartbeat(userId);
 

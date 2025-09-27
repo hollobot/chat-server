@@ -76,6 +76,7 @@ public class ChatController {
         String token = request.getHeader("authorization");
         TokenUserInfoDto tokenInfo = redisUtils.getTokenInfo(token);
         chatMessageService.saveMessageFile(tokenInfo.getUserId(), uuid, file, cover);
+
         return ResultVo.success("上传成功");
     }
 
