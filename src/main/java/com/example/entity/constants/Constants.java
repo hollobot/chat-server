@@ -83,4 +83,16 @@ public class Constants {
      * 系统设置
      */
     public static final String SYSTEM_SETTING = "chat-service:setting";
+
+
+    /**
+     * ACK 等待确认接收消息
+     */
+    public static final String WAIT_ACK_KEY = "chat-service:wait_ack:";
+
+
+    /**
+     * 离线消息
+     */
+    public static final String OFFLINE_MSG_KEY = "chat-service:offline:";
 }

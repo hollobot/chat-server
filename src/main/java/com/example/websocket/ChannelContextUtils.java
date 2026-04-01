@@ -17,10 +17,15 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+import static com.example.entity.constants.Constants.OFFLINE_MSG_KEY;
+import static com.example.entity.constants.Constants.WAIT_ACK_KEY;
 
 @Slf4j
 @Component
@@ -29,8 +34,10 @@ public class ChannelContextUtils {
     // 定义一个全局 AttributeKey
     private static final AttributeKey<String> USER_ID_KEY = AttributeKey.valueOf("userId");
 
+    // 存储 userId 和 Channel 的映射关系
     private static final ConcurrentHashMap<String, Channel> USER_CHANNEL_MAP = new ConcurrentHashMap();
 
+    // 存储 groupId 和 ChannelGroup 的映射关系
     private static final ConcurrentHashMap<String, ChannelGroup> GROUP_CHANNEL_MAP = new ConcurrentHashMap();
 
     @Resource
@@ -51,6 +58,9 @@ public class ChannelContextUtils {
     @Resource
     private GroupApplyInfoMapper groupApplyInfoMapper;
 
+    @Resource
+    private RedisTemplate redisTemplate;
+
     public void addContext(String userId, Channel channel) {
 
         /*1、channel注册userId属性*/
@@ -62,6 +72,7 @@ public class ChannelContextUtils {
         log.error("contactIds:{}", contactIds);
         for (String groupId : contactIds) {
             if (groupId.startsWith(UserContactTypeEnum.GROUP.getPrefix())) {
+                // 注册用户channel到群聊channelGroup里
                 addOrDelGroupChannel(groupId, channel, 1);
             }
         }
@@ -122,21 +133,29 @@ public class ChannelContextUtils {
         }
     }
 
-    public void sendToUser(MessageSendDto messageSendDto) {
-        String recipientId = messageSendDto.getRecipientId();
+    public void sendToUser(MessageSendDto msg) {
+        String recipientId = msg.getRecipientId();
         if (recipientId == null) {
             return;
         }
         Channel channel = USER_CHANNEL_MAP.get(recipientId);
-        if (channel == null) {
-            return;
+
+        if(channel!=null && channel.isActive()){
+            // 在线直发
+            channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(msg)));
+            // 等待 ACK
+            redisTemplate.opsForValue().set(WAIT_ACK_KEY + msg.getUuid(), JSON.toJSONString(msg), 60, TimeUnit.SECONDS);
+
+            /*判断消息数据类型是否为强制下线*/
+            if (msg.getMessageType() == MessageTypeEnum.FORCE_OFF_LINE.getType()) {
+                closeContext(recipientId);
+            }
+        }else{
+            // 不在线存离线消息
+            redisTemplate.opsForList().rightPush(OFFLINE_MSG_KEY + recipientId, JSON.toJSONString(msg));
         }
 
-        channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageSendDto)));
-        /*判断消息数据类型是否为强制下线*/
-        if (messageSendDto.getMessageType() == MessageTypeEnum.FORCE_OFF_LINE.getType()) {
-            closeContext(recipientId);
-        }
+
     }
 
     /**
@@ -154,7 +173,7 @@ public class ChannelContextUtils {
         if (channelGroup == null) {
             return;
         }
-        /*2、发送群聊消息*/
+        /*2、发送群聊消息 channelGroup 存放的是用户channel集合*/
         channelGroup.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageSendDto)));
     }
 
@@ -246,6 +265,25 @@ public class ChannelContextUtils {
             return true;
         }
         return false;
+    }
+
+
+    // 收到 ACK
+    public void ackReceived(String msgId) {
+        redisTemplate.delete(WAIT_ACK_KEY + msgId);
+    }
+
+    // 用户上线时，推送离线消息
+    public void sendOfflineMessages(Long userId) {
+        String key = OFFLINE_MSG_KEY + userId;
+        List<String> offlineMessages = redisTemplate.opsForList().range(key, 0, -1);
+        if (offlineMessages != null) {
+            for (String json : offlineMessages) {
+                MessageSendDto msg = JSON.parseObject(json, MessageSendDto.class);
+                sendToUser(msg);
+            }
+            redisTemplate.delete(key);
+        }
     }
 
 }
